@@ -23,18 +23,18 @@ public class MainApplication extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
-        FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("base/login-view.fxml"));
+        // 使用绝对路径从classpath根目录开始
+        FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/teach/javafx/base/login-view.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 320, 240);
-//        scene.getStylesheets().add(getClass().getResource("css/styles.css").toExternalForm());
         stage.setTitle("登录");
         stage.setScene(scene);
         stage.show();
         stage.setOnCloseRequest(event -> {
             if(canClose) {
-               HttpRequestUtil.close();
-           }else {
-               event.consume();
-           }
+                HttpRequestUtil.close();
+            }else {
+                event.consume();
+            }
         });
         mainStage = stage;
     }

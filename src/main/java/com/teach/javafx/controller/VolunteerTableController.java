@@ -133,7 +133,11 @@ public class VolunteerTableController {
         roleColumn.setCellValueFactory(new MapValueFactory<>("role"));
         editColumn.setCellValueFactory(new MapValueFactory<>("edit"));
 
+<<<<<<< Updated upstream
           OptionItem item = new OptionItem(null,"0","请选择");
+=======
+        OptionItem item = new OptionItem(null,"0","请选择");
+>>>>>>> Stashed changes
         studentComboBox.getItems().addAll(item);
         studentComboBox.getItems().addAll(studentList);
         activityComboBox.getItems().addAll(item);
@@ -188,10 +192,18 @@ public class VolunteerTableController {
         req.add("activityId",activityId);
         req.add("volunteerId",CommonMethod.getInteger(data,"volunteerId"));
         req.add("role",CommonMethod.getString(data,"role"));
+<<<<<<< Updated upstream
+=======
+        req.add("hours",CommonMethod.getString(data,"hours"));
+>>>>>>> Stashed changes
         res = HttpRequestUtil.request("/api/volunteer/volunteerSave",req); //保存志愿活动信息
         if(res != null && res.getCode()== 0) {
             onQueryButtonClick();
         }
+<<<<<<< Updated upstream
+=======
+//        System.out.println("传递到后端的时长: " + data.get("hours"));
+>>>>>>> Stashed changes
     }
 
     @FXML

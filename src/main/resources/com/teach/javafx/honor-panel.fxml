@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<SplitPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teach.javafx.controller.HonorController">
+    <!-- 左侧：列表和查询 -->
+    <VBox prefWidth="700" spacing="10">
+        <padding>
+            <Insets bottom="10" left="10" right="10" top="10" />
+        </padding>
+
+        <!-- 查询条件 -->
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Label text="编号/荣誉名称/姓名:" />
+            <TextField fx:id="numNameTextField" prefWidth="180" promptText="请输入编号、荣誉名称或学生姓名" />
+            
+            <Label text="荣誉类型:" />
+            <ComboBox fx:id="honorTypeFilterComboBox" prefWidth="100" />
+            
+            <Label text="荣誉等级:" />
+            <ComboBox fx:id="honorLevelFilterComboBox" prefWidth="100" />
+            
+            <Label text="状态:" />
+            <ComboBox fx:id="statusFilterComboBox" prefWidth="100" />
+            
+            <Button fx:id="queryButton" onAction="#onQueryButtonClick" text="查询" />
+            <Button fx:id="refreshButton" onAction="#onQueryButtonClick" text="刷新" />
+        </HBox>
+
+        <!-- 操作按钮 -->
+        <HBox alignment="CENTER_LEFT" spacing="10">
+            <Button fx:id="addButton" onAction="#onAddButtonClick" text="新建" />
+            <Button fx:id="saveButton" onAction="#onSaveButtonClick" text="保存" />
+            <Button fx:id="deleteButton" onAction="#onDeleteButtonClick" text="删除" />
+        </HBox>
+
+        <!-- 数据表格 -->
+        <TableView fx:id="dataTableView" VBox.vgrow="ALWAYS">
+            <columns>
+                <TableColumn fx:id="numColumn" prefWidth="80" text="荣誉编号" />
+                <TableColumn fx:id="studentNameColumn" prefWidth="80" text="学生姓名" />
+                <TableColumn fx:id="honorNameColumn" prefWidth="120" text="荣誉名称" />
+                <TableColumn fx:id="honorTypeColumn" prefWidth="80" text="荣誉类型" />
+                <TableColumn fx:id="honorLevelColumn" prefWidth="80" text="荣誉等级" />
+                <TableColumn fx:id="awardDateColumn" prefWidth="100" text="获奖日期" />
+                <TableColumn fx:id="awardingOrganizationColumn" prefWidth="120" text="颁奖机构" />
+                <TableColumn fx:id="statusColumn" prefWidth="60" text="状态" />
+            </columns>
+        </TableView>
+    </VBox>
+
+    <!-- 右侧：详细信息编辑 -->
+    <VBox prefWidth="500" spacing="10">
+        <padding>
+            <Insets bottom="10" left="10" right="10" top="10" />
+        </padding>
+
+        <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="荣誉详细信息" />
+
+        <!-- 基本信息 -->
+        <TitledPane expanded="true" text="基本信息">
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="80" />
+                    <ColumnConstraints minWidth="200" />
+                </columnConstraints>
+
+                <Label text="荣誉编号:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="numField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="学生:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <ComboBox fx:id="studentComboBox" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="荣誉名称:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="honorNameField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                <Label text="荣誉类型:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                <ComboBox fx:id="honorTypeComboBox" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                <Label text="荣誉等级:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                <ComboBox fx:id="honorLevelComboBox" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                <Label text="状态:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                <ComboBox fx:id="statusComboBox" prefWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+            </GridPane>
+        </TitledPane>
+
+        <!-- 颁奖信息 -->
+        <TitledPane expanded="true" text="颁奖信息">
+            <GridPane hgap="10" vgap="10">
+                <columnConstraints>
+                    <ColumnConstraints minWidth="80" />
+                    <ColumnConstraints minWidth="200" />
+                </columnConstraints>
+
+                <Label text="颁奖机构:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                <TextField fx:id="awardingOrganizationField" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+
+                <Label text="获奖日期:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                <DatePicker fx:id="awardDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                <Label text="证书编号:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                <TextField fx:id="certificateNumberField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            </GridPane>
+        </TitledPane>
+
+        <!-- 详细信息 -->
+        <TitledPane expanded="true" text="详细信息" VBox.vgrow="ALWAYS">
+            <VBox spacing="10">
+                <Label text="荣誉描述:" />
+                <TextArea fx:id="descriptionField" prefRowCount="4" wrapText="true" />
+            </VBox>
+        </TitledPane>
+    </VBox>
+</SplitPane> 

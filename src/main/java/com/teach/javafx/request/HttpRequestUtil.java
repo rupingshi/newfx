@@ -37,24 +37,24 @@ public class HttpRequestUtil {
      */
 
     public static String login(LoginRequest request){
-            HttpRequest httpRequest = HttpRequest.newBuilder()
-                    .uri(URI.create(serverUrl + "/auth/login"))
-                    .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(request)))
-                    .headers("Content-Type", "application/json")
-                    .build();
-            try {
-                HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-                System.out.println("response.statusCode===="+response.statusCode());
-                if (response.statusCode() == 200) {
-                    JwtResponse jwt = gson.fromJson(response.body(), JwtResponse.class);
-                    AppStore.setJwt(jwt);
-                    return null;
-                } else if (response.statusCode() == 401) {
-                    return "用户名或密码不存在！";
-                }
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(serverUrl + "/auth/login"))
+                .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(request)))
+                .headers("Content-Type", "application/json")
+                .build();
+        try {
+            HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+            System.out.println("response.statusCode===="+response.statusCode());
+            if (response.statusCode() == 200) {
+                JwtResponse jwt = gson.fromJson(response.body(), JwtResponse.class);
+                AppStore.setJwt(jwt);
+                return null;
+            } else if (response.statusCode() == 401) {
+                return "用户名或密码不存在！";
             }
+        } catch (IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
         return "登录失败";
     }
 
@@ -65,25 +65,66 @@ public class HttpRequestUtil {
      * @return DataResponse 返回后台返回数据
      */
     public static DataResponse request(String url, DataRequest request){
+        try {
+            request.add("username", AppStore.getJwt().getUsername());
             HttpRequest httpRequest = HttpRequest.newBuilder()
                     .uri(URI.create(serverUrl + url))
                     .POST(HttpRequest.BodyPublishers.ofString(gson.toJson(request)))
                     .headers("Content-Type", "application/json")
                     .headers("Authorization", "Bearer " + AppStore.getJwt().getToken())
+                    .timeout(java.time.Duration.ofSeconds(10)) // 设置10秒超时
                     .build();
-            request.add("username",AppStore.getJwt().getUsername());
-            HttpClient client = HttpClient.newHttpClient();
+
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(5)) // 设置连接超时
+                    .build();
+
             try {
                 HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-                System.out.println("url=" + url +"    response.statusCode="+response.statusCode());
+                System.out.println("url=" + url + "    response.statusCode=" + response.statusCode());
                 if (response.statusCode() == 200) {
-                    //                System.out.println(response.body());
                     return gson.fromJson(response.body(), DataResponse.class);
+                } else if (response.statusCode() == 500) {
+                    // 服务器内部错误
+                    DataResponse errorResponse = new DataResponse();
+                    errorResponse.setCode(500);
+                    errorResponse.setMsg("服务器内部错误，请联系管理员");
+                    return errorResponse;
+                } else if (response.statusCode() == 401) {
+                    // 未授权
+                    DataResponse errorResponse = new DataResponse();
+                    errorResponse.setCode(401);
+                    errorResponse.setMsg("会话已过期，请重新登录");
+                    return errorResponse;
                 }
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
+            } catch (IOException e) {
+                System.err.println("IO错误: " + e.getMessage());
+                DataResponse errorResponse = new DataResponse();
+                errorResponse.setCode(-1);
+                errorResponse.setMsg("网络连接错误: " + e.getMessage());
+                return errorResponse;
+            } catch (InterruptedException e) {
+                System.err.println("请求被中断: " + e.getMessage());
+                Thread.currentThread().interrupt();
+                DataResponse errorResponse = new DataResponse();
+                errorResponse.setCode(-2);
+                errorResponse.setMsg("请求被中断");
+                return errorResponse;
             }
-        return null;
+        } catch (Exception e) {
+            System.err.println("请求发生异常: " + e.getMessage());
+            e.printStackTrace();
+            DataResponse errorResponse = new DataResponse();
+            errorResponse.setCode(-3);
+            errorResponse.setMsg("请求发生异常: " + e.getMessage());
+            return errorResponse;
+        }
+
+        // 默认错误响应
+        DataResponse errorResponse = new DataResponse();
+        errorResponse.setCode(-999);
+        errorResponse.setMsg("未知错误");
+        return errorResponse;
     }
 
     /**
@@ -225,34 +266,103 @@ public class HttpRequestUtil {
     }
 
     /**
-     * DataResponse importData(String url, String fileName, String paras) 导入数据文件
-     * @param url  Web请求的Url 对用后的 RequestMapping
+     * @param url      Web请求的Url 对用后的 RequestMapping
      * @param fileName 本地文件名
-     * @param paras  上传参数
+     * @param paras    上传参数
      * @return 导入结果信息
      */
     public static DataResponse importData(String url, String fileName, String paras)  {
         try {
             Path file = Path.of(fileName);
-            String urlStr = serverUrl+url+"?uploader=HttpTestApp&fileName=" + file.getFileName() ;
-            if(paras != null && !paras.isEmpty())
-                urlStr += "&"+paras;
-            HttpClient client = HttpClient.newBuilder().build();
+
+            // 检查文件是否存在
+            if (!file.toFile().exists()) {
+                DataResponse errorResponse = new DataResponse();
+                errorResponse.setCode(-1);
+                errorResponse.setMsg("找不到指定文件：" + fileName);
+                return errorResponse;
+            }
+
+            // 检查文件大小
+            long fileSize = file.toFile().length();
+            if (fileSize == 0) {
+                DataResponse errorResponse = new DataResponse();
+                errorResponse.setCode(-1);
+                errorResponse.setMsg("文件为空，请选择有效的文件");
+                return errorResponse;
+            }
+
+            if (fileSize > 50 * 1024 * 1024) { // 限制文件大小为50MB
+                DataResponse errorResponse = new DataResponse();
+                errorResponse.setCode(-1);
+                errorResponse.setMsg("文件过大，请选择小于50MB的文件");
+                return errorResponse;
+            }
+
+            // 对文件名进行URL编码，避免特殊字符导致的问题
+            String encodedFileName = java.net.URLEncoder.encode(file.getFileName().toString(), "UTF-8")
+                    .replace("+", "%20"); // 替换空格编码
+
+            String urlStr = serverUrl + url + "?uploader=HttpTestApp&fileName=" + encodedFileName;
+            if (paras != null && !paras.isEmpty()) {
+                // 确保参数也被正确编码
+                urlStr += "&" + paras;
+            }
+
+            System.out.println("上传文件到: " + urlStr);
+            System.out.println("文件路径: " + fileName);
+            System.out.println("文件大小: " + fileSize + " bytes");
+
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(java.time.Duration.ofSeconds(30)) // 增加连接超时时间
+                    .build();
+
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(urlStr))
                     .POST(HttpRequest.BodyPublishers.ofFile(file))
                     .headers("Authorization", "Bearer " + AppStore.getJwt().getToken())
+                    .headers("Content-Type", "application/octet-stream") // 明确设置内容类型
+                    .timeout(java.time.Duration.ofMinutes(2)) // 设置较长的请求超时时间，以便处理大文件
                     .build();
-            HttpResponse<String>  response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+
+            System.out.println("服务器响应状态码: " + response.statusCode());
+            System.out.println("服务器响应内容: " + response.body());
+
             if(response.statusCode() == 200) {
                 return gson.fromJson(response.body(), DataResponse.class);
+            } else {
+                // 处理非200状态码
+                DataResponse errorResponse = new DataResponse();
+                errorResponse.setCode(response.statusCode());
+                errorResponse.setMsg("服务器返回错误状态码：" + response.statusCode() + "\n" + response.body());
+                return errorResponse;
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (java.nio.file.NoSuchFileException e) {
+            DataResponse errorResponse = new DataResponse();
+            errorResponse.setCode(-1);
+            errorResponse.setMsg("找不到指定文件：" + fileName);
+            return errorResponse;
+        } catch (java.io.IOException e) {
+            DataResponse errorResponse = new DataResponse();
+            errorResponse.setCode(-2);
+            errorResponse.setMsg("IO错误：" + e.getMessage());
             e.printStackTrace();
+            return errorResponse;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            DataResponse errorResponse = new DataResponse();
+            errorResponse.setCode(-3);
+            errorResponse.setMsg("请求被中断");
+            return errorResponse;
+        } catch (Exception e) {
+            DataResponse errorResponse = new DataResponse();
+            errorResponse.setCode(-4);
+            errorResponse.setMsg("导入文件时发生错误：" + e.getMessage());
+            e.printStackTrace();
+            return errorResponse;
         }
-        return null;
     }
-
-
 
 }
