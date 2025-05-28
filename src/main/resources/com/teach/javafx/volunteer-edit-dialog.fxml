@@ -25,10 +25,6 @@
          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
          <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-<<<<<<< Updated upstream
-=======
-         <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
->>>>>>> Stashed changes
       </rowConstraints>
       <children>
          <Label text="学生" GridPane.columnIndex="0" GridPane.rowIndex="0">
@@ -36,33 +32,25 @@
                <Insets right="5.0" />
             </GridPane.margin>
          </Label>
-<<<<<<< Updated upstream
          <ComboBox fx:id="studentComboBox" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-=======
-         <ComboBox fx:id="studentComboBox" prefHeight="23.0" prefWidth="73.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
->>>>>>> Stashed changes
          <Label text="活动" GridPane.columnIndex="0" GridPane.rowIndex="1">
             <GridPane.margin>
                <Insets right="5.0" />
             </GridPane.margin>
          </Label>
-<<<<<<< Updated upstream
          <ComboBox fx:id="activityComboBox" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-=======
-         <ComboBox fx:id="activityComboBox" prefHeight="23.0" prefWidth="74.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
->>>>>>> Stashed changes
-         <Label text="时长" GridPane.columnIndex="0" GridPane.rowIndex="2">
+         <Label text="角色" GridPane.columnIndex="0" GridPane.rowIndex="2">
             <GridPane.margin>
                <Insets right="5.0" />
             </GridPane.margin>
          </Label>
-<<<<<<< Updated upstream
-         <TextField fx:id="roleField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-=======
-         <TextField fx:id="hoursField" GridPane.columnIndex="1" GridPane.rowIndex="2" promptText="请输入时长"/>
-         <Label prefHeight="15.0" prefWidth="29.0" text="角色" GridPane.rowIndex="3" />
-         <TextField fx:id="roleField" GridPane.columnIndex="1" GridPane.rowIndex="3" promptText="请输入角色"/>
->>>>>>> Stashed changes
+         <TextField fx:id="hoursField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+          <Label text="时长" GridPane.columnIndex="0" GridPane.rowIndex="2">
+              <GridPane.margin>
+                  <Insets right="5.0" />
+              </GridPane.margin>
+          </Label>
+          <TextField fx:id="roleField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
       </children>
    </GridPane>
    <FlowPane alignment="CENTER" prefHeight="40.0" prefWidth="300.0" BorderPane.alignment="CENTER">
