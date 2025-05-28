@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<!-- 教师管理面板 对应控制类 com.teach.javafx.controller.TeacherController -->
+<SplitPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.teach.javafx.controller.TeacherController">
+   <items>
+      <!-- 左侧：教师列表和查询区域 -->
+      <VBox prefWidth="500" spacing="10">
+         <children>
+            <!-- 查询区域 -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+               <children>
+                  <Label text="编号/姓名：" />
+                  <TextField fx:id="numNameTextField" promptText="请输入教师编号或姓名进行查询" prefWidth="200" />
+                  <Button onAction="#onQueryButtonClick" text="查询" />
+                  <Button text="刷新" onAction="#onQueryButtonClick" />
+               </children>
+               <padding>
+                  <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" />
+               </padding>
+            </HBox>
+            
+            <!-- 教师列表表格 -->
+            <TableView fx:id="dataTableView" VBox.vgrow="ALWAYS">
+               <columns>
+                  <TableColumn fx:id="numColumn" prefWidth="80.0" text="教师编号" />
+                  <TableColumn fx:id="nameColumn" prefWidth="80.0" text="姓名" />
+                  <TableColumn fx:id="deptColumn" prefWidth="120.0" text="学院" />
+                  <TableColumn fx:id="genderColumn" prefWidth="60.0" text="性别" />
+                  <TableColumn fx:id="phoneColumn" prefWidth="120.0" text="电话" />
+               </columns>
+            </TableView>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+      
+      <!-- 右侧：教师详细信息编辑区域 -->
+      <VBox prefWidth="600" spacing="10">
+         <children>
+            <!-- 标题 -->
+            <Label style="-fx-font-size: 16px; -fx-font-weight: bold;" text="教师详情" />
+            
+            <!-- 教师信息表单 -->
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+               <content>
+                  <GridPane hgap="15" vgap="15">
+                     <columnConstraints>
+                        <ColumnConstraints minWidth="100.0" />
+                        <ColumnConstraints hgrow="ALWAYS" minWidth="200.0" />
+                     </columnConstraints>
+                     <children>
+                        <!-- 第一行：教师编号 -->
+                        <Label text="教师编号 *" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <TextField fx:id="numField" promptText="请输入教师编号" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        
+                        <!-- 第二行：姓名 -->
+                        <Label text="姓名 *" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <TextField fx:id="nameField" promptText="请输入教师姓名" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        
+                        <!-- 第三行：学院 -->
+                        <Label text="学院 *" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <TextField fx:id="deptField" promptText="请输入学院名称" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        
+                        <!-- 第四行：身份证号 -->
+                        <Label text="身份证号" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <TextField fx:id="cardField" promptText="请输入身份证号" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        
+                        <!-- 第五行：性别 -->
+                        <Label text="性别" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <ComboBox fx:id="genderComboBox" maxWidth="200" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        
+                        <!-- 第六行：生日 -->
+                        <Label text="生日" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                        <TextField fx:id="birthdayField" promptText="例如：1990-01-01 或 1990年1月1日" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        
+                        <!-- 第七行：邮箱 -->
+                        <Label text="邮箱" GridPane.columnIndex="0" GridPane.rowIndex="6" />
+                        <TextField fx:id="emailField" promptText="请输入邮箱地址" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                        
+                        <!-- 第八行：电话 -->
+                        <Label text="电话" GridPane.columnIndex="0" GridPane.rowIndex="7" />
+                        <TextField fx:id="phoneField" promptText="请输入联系电话" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                        
+                        <!-- 第九行：地址 -->
+                        <Label text="地址" GridPane.columnIndex="0" GridPane.rowIndex="8" />
+                        <TextField fx:id="addressField" promptText="请输入联系地址" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                        
+                        <!-- 第十行：个人简介 -->
+                        <Label text="个人简介" GridPane.columnIndex="0" GridPane.rowIndex="9" />
+                        <TextArea fx:id="introduceTextArea" prefHeight="100.0" promptText="个人简介/备注信息" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                     </children>
+                     <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                     </padding>
+                  </GridPane>
+               </content>
+            </ScrollPane>
+            
+            <!-- 操作按钮区域 -->
+            <HBox spacing="10" alignment="CENTER">
+               <children>
+                  <Button onAction="#onAddButtonClick" text="新建" />
+                  <Button onAction="#onSaveButtonClick" text="保存" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" />
+                  <Button onAction="#onDeleteButtonClick" text="删除" style="-fx-background-color: #f44336; -fx-text-fill: white;" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </padding>
+            </HBox>
+            
+            <!-- 使用说明 -->
+            <VBox spacing="5">
+               <children>
+                  <Label style="-fx-font-weight: bold;" text="使用说明：" />
+                  <Label text="• 标记为 * 的字段为必填项" />
+                  <Label text="• 点击左侧教师列表可查看和编辑教师信息" />
+                  <Label text="• 删除教师会删除该教师的所有基本信息" />
+                  <Label text="• 生日可以多种格式输入" />
+               </children>
+               <padding>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+               </padding>
+            </VBox>
+         </children>
+         <padding>
+            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+         </padding>
+      </VBox>
+   </items>
+</SplitPane> 
