@@ -33,7 +33,7 @@
                   <Insets right="5.0" />
                </GridPane.margin>
             </Label>
-            <ComboBox fx:id="studentComboBox" prefHeight="23.0" prefWidth="86.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <ComboBox fx:id="studentComboBox" prefHeight="23.0" prefWidth="145.0" GridPane.columnIndex="1" GridPane.rowIndex="0" />
             <Label prefHeight="15.0" prefWidth="32.0" text="日期" GridPane.columnIndex="0" GridPane.rowIndex="1">
                <GridPane.margin>
                   <Insets right="5.0" />
@@ -45,7 +45,7 @@
                   <Insets right="5.0" />
                </GridPane.margin>
             </Label>
-            <ComboBox fx:id="statusComboBox" prefHeight="23.0" prefWidth="84.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <ComboBox fx:id="statusComboBox" prefHeight="23.0" prefWidth="148.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
          <Label prefHeight="15.0" prefWidth="32.0" text="备注" GridPane.rowIndex="3" />
          <TextField fx:id="remarkField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
          </children>

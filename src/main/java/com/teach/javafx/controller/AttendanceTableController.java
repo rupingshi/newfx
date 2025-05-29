@@ -162,7 +162,7 @@ public class AttendanceTableController {
         req.add("classId", classId);
         req.add("date", date);
         //发送请求到后端
-        DataResponse res = HttpRequestUtil.request("/api/attendance", req);
+        DataResponse res = HttpRequestUtil.request("/api/attendance/status-options", req);
         //处理响应
         if(res != null && res.getCode()== 0) {
             attendanceList = (ArrayList<Map>)res.getData();
@@ -351,16 +351,16 @@ public class AttendanceTableController {
 
         // 验证数据
         Integer personId = CommonMethod.getInteger(data, "personId");
-        if(personId == null) {
+        if(personId == null || personId == 0) {  // 允许0或null时提示
             MessageDialog.showDialog("没有选中学生，不能保存！");
             return;
         }
 
-        Integer statusId = CommonMethod.getInteger(data, "statusId");
-        if(statusId == null) {
-            MessageDialog.showDialog("没有选中考勤状态，不能保存！");
-            return;
-        }
+//        Integer statusId = CommonMethod.getInteger(data, "statusId");
+//        if(statusId == null) {
+//            MessageDialog.showDialog("没有选中考勤状态，不能保存！");
+//            return;
+//        }
 
         String date = CommonMethod.getString(data, "date");
         if(date == null || date.trim().isEmpty()) {
@@ -368,15 +368,31 @@ public class AttendanceTableController {
             return;
         }
 
+        Integer statusId = CommonMethod.getInteger(data, "statusId");
+        String statusEnum;
+        switch(statusId) {
+            case 1: statusEnum = "PRESENT"; break;
+            case 2: statusEnum = "ABSENT"; break;
+            case 3: statusEnum = "LATE"; break;
+            case 4: statusEnum = "LEAVE"; break;
+            case 5: statusEnum = "EARLY_LEAVE"; break;
+            default:
+                MessageDialog.showDialog("无效的考勤状态！");
+                return;
+        }
+
+
         // 保存数据
         DataRequest req = new DataRequest();
         req.add("attendanceId", CommonMethod.getInteger(data, "attendanceId"));
         req.add("personId", personId);
-        req.add("statusId", statusId);
-        req.add("date", date);
+        req.add("status", statusEnum);
+        req.add("date", CommonMethod.getString(data, "date")); // 确保日期字段名正确
         req.add("remark", CommonMethod.getString(data, "remark"));
-        
-        DataResponse res = HttpRequestUtil.request("/api/attendance/save", req);
+
+        System.out.println("准备保存的数据：" + req.getData());
+
+        DataResponse res = HttpRequestUtil.request("/api/attendance/record", req);
         if(res != null && res.getCode() == 0) {
             MessageDialog.showDialog("保存成功！");
             onQueryButtonClick();
