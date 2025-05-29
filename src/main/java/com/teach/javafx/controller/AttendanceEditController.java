@@ -123,7 +123,7 @@ public class AttendanceEditController {
             studentComboBox.getSelectionModel().select(CommonMethod.getOptionItemIndexByValue(studentList, CommonMethod.getString(data, "personId")));
             statusComboBox.getSelectionModel().select(CommonMethod.getOptionItemIndexByValue(statusList, CommonMethod.getString(data, "statusId")));
             studentComboBox.setDisable(true);
-            dateField.setText(CommonMethod.getString(data, "date"));
+            dateField.setText(CommonMethod.getString(data, "dateNum"));
             remarkField.setText(CommonMethod.getString(data, "remark"));
         }
     }

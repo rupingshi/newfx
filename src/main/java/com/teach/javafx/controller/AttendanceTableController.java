@@ -53,8 +53,10 @@ public class AttendanceTableController {
     private ComboBox<OptionItem> studentComboBox;
     private static List<OptionItem> studentList;        // 学生选项列表
     @FXML
-    private ComboBox<OptionItem> statusComboBox; // 状态筛选下拉框
-    private static List<OptionItem> statusList;        // 状态选项列表
+    private ComboBox<OptionItem> statusComboBox;  // 状态筛选下拉框
+    private static List<OptionItem> statusList;      // 状态选项列表
+    @FXML
+    private TextField classField; //班级输入框
     @FXML
     private TextField dateField; // 日期输入框
 
@@ -70,7 +72,7 @@ public class AttendanceTableController {
         if (studentList == null) {
             System.out.println("开始请求学生列表...");
             DataRequest req = new DataRequest();
-            studentList = HttpRequestUtil.requestOptionItemList("/api/student/getStudentList", req);
+            studentList = HttpRequestUtil.requestOptionItemList("/api/volunteer/getStudentItemOptionList", req);
             System.out.println("请求结果：" + (studentList != null ? "成功，获取到 " + studentList.size() + " 条记录" : "失败"));
             if(studentList == null) {
                 studentList = new ArrayList<>();
@@ -88,7 +90,7 @@ public class AttendanceTableController {
             // 从后台获取考勤状态列表
             System.out.println("开始请求考勤状态列表...");
             DataRequest req = new DataRequest();
-            statusList = HttpRequestUtil.requestOptionItemList("/api/attendances/getStatusOptionItemList", req);
+            statusList = HttpRequestUtil.requestOptionItemList("/api/attendance/status-options", req);
             System.out.println("请求结果：" + (statusList != null ? "成功，获取到 " + statusList.size() + " 条记录" : "失败"));
             if (statusList == null) {
                 statusList = new ArrayList<>();
@@ -129,9 +131,14 @@ public class AttendanceTableController {
         Integer personId = 0;
         Integer statusId = 0;
         String date = "";
+        String classId = "";
 
         if (dateField != null) {
             date = dateField.getText();
+        }
+
+        if(classField != null){
+            classId = classField.getText();
         }
 
         if (studentComboBox != null && studentComboBox.getSelectionModel().getSelectedItem() != null) {
@@ -151,9 +158,12 @@ public class AttendanceTableController {
         // 发送查询请求
         DataRequest req = new DataRequest();
         req.add("personId", personId);
-        req.add("statusId", statusId);
+//        req.add("statusId", statusId);
+        req.add("classId", classId);
         req.add("date", date);
-        DataResponse res = HttpRequestUtil.request("/api/attendances/getAttendanceList", req);
+        //发送请求到后端
+        DataResponse res = HttpRequestUtil.request("/api/attendance", req);
+        //处理响应
         if(res != null && res.getCode()== 0) {
             attendanceList = (ArrayList<Map>)res.getData();
         }
@@ -212,7 +222,7 @@ public class AttendanceTableController {
         // 从后台获取学生列表
         System.out.println("开始请求学生列表...");
         DataRequest req = new DataRequest();
-        studentList = HttpRequestUtil.requestOptionItemList("/api/student/getStudentInfo", req);
+        studentList = HttpRequestUtil.requestOptionItemList("/api/volunteer/getStudentItemOptionList", req);
         System.out.println("请求结果：" + (studentList != null ? "成功，获取到 " + studentList.size() + " 条记录" : "失败"));
     
         // 如果获取失败，初始化为空列表而不是 null
@@ -246,6 +256,15 @@ public class AttendanceTableController {
         statusComboBox.getItems().addAll(statusList);
         
         dataTableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
+        onQueryButtonClick();
+    }
+
+    /**
+     * 刷新活动列表
+     */
+    public void refreshAttendanceList() {
+        classField.setText(""); // 清空搜索条件
+        dateField.setText("");
         onQueryButtonClick();
     }
 
@@ -289,7 +308,7 @@ public class AttendanceTableController {
         Integer attendanceId = CommonMethod.getInteger(form, "attendanceId");
         DataRequest req = new DataRequest();
         req.add("attendanceId", attendanceId);
-        DataResponse res = HttpRequestUtil.request("/api/attendances/attendanceDelete", req);
+        DataResponse res = HttpRequestUtil.request("/api/attendance/delete/{attendanceId}", req);
 
         if(res.getCode() == 0) {
             MessageDialog.showDialog("删除成功！");
@@ -357,7 +376,7 @@ public class AttendanceTableController {
         req.add("date", date);
         req.add("remark", CommonMethod.getString(data, "remark"));
         
-        DataResponse res = HttpRequestUtil.request("/api/attendances/attendanceSave", req);
+        DataResponse res = HttpRequestUtil.request("/api/attendance/save", req);
         if(res != null && res.getCode() == 0) {
             MessageDialog.showDialog("保存成功！");
             onQueryButtonClick();
