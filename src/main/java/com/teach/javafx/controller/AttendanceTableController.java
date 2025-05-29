@@ -368,25 +368,26 @@ public class AttendanceTableController {
             return;
         }
 
-        Integer statusId = CommonMethod.getInteger(data, "statusId");
-        String statusEnum;
-        switch(statusId) {
-            case 1: statusEnum = "PRESENT"; break;
-            case 2: statusEnum = "ABSENT"; break;
-            case 3: statusEnum = "LATE"; break;
-            case 4: statusEnum = "LEAVE"; break;
-            case 5: statusEnum = "EARLY_LEAVE"; break;
+        String status = CommonMethod.getString(data, "status");
+        //Integer statusId = CommonMethod.getInteger(data, "statusId");
+        //String statusEnum;
+        /*switch(status) {
+            case 1: status = "PRESENT"; break;
+            case 2: status = "ABSENT"; break;
+            case 3: status = "LATE"; break;
+            case 4: status = "LEAVE"; break;
+            case 5: status = "EARLY_LEAVE"; break;
             default:
                 MessageDialog.showDialog("无效的考勤状态！");
                 return;
-        }
+        }*/
 
 
         // 保存数据
         DataRequest req = new DataRequest();
-        req.add("attendanceId", CommonMethod.getInteger(data, "attendanceId"));
+        //req.add("attendanceId", CommonMethod.getInteger(data, "attendanceId"));
         req.add("personId", personId);
-        req.add("status", statusEnum);
+        req.add("status", status);
         req.add("date", CommonMethod.getString(data, "date")); // 确保日期字段名正确
         req.add("remark", CommonMethod.getString(data, "remark"));
 
