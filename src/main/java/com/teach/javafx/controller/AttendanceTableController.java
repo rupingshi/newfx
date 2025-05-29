@@ -153,7 +153,7 @@ public class AttendanceTableController {
             if(op != null && !op.getValue().equals("0")) {
                 statusId = Integer.parseInt(op.getValue());
             }
-        }
+        } 
 
         // 发送查询请求
         DataRequest req = new DataRequest();
