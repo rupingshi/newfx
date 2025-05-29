@@ -7,6 +7,7 @@ import com.teach.javafx.request.DataResponse;
 import com.teach.javafx.request.HttpRequestUtil;
 import com.teach.javafx.request.OptionItem;
 import com.teach.javafx.util.CommonMethod;
+import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -117,46 +118,103 @@ public class AssignmentController extends ToolController {
 
     private void loadCourseList() {
         DataRequest req = new DataRequest();
-        DataResponse res = HttpRequestUtil.request("/api/assignment/getCourseList", req);
+        DataResponse res = HttpRequestUtil.request("/api/score/getCourseItemOptionList", req);
+
+        // 添加空值检查和处理
         if (res != null && res.getCode() == 0) {
             List<Map<String, Object>> courseList = (List<Map<String, Object>>) res.getData();
             List<OptionItem> options = new ArrayList<>();
-            options.add(new OptionItem(0, "", "全部课程"));
+            options.add(new OptionItem(0, "", "全部课程")); // 添加默认选项
 
-            for (Map<String, Object> course : courseList) {
-                Integer courseId = CommonMethod.getInteger(course, "value");
-                String title = CommonMethod.getString(course, "title");
-                options.add(new OptionItem(courseId, courseId.toString(), title));
+            // 检查courseList是否为null
+            if (courseList != null) {
+                for (Map<String, Object> course : courseList) {
+                    Integer courseId = CommonMethod.getInteger(course, "value");
+                    String title = CommonMethod.getString(course, "title");
+                    if (courseId != null && title != null) {
+                        options.add(new OptionItem(courseId, courseId.toString(), title));
+                    }
+                }
+            } else {
+                // 可以添加日志或默认课程选项
+                System.out.println("警告: 获取的课程列表为空");
+                // 添加一些默认课程选项示例（实际项目中可以从配置读取或使用缓存）
+                options.add(new OptionItem(1, "1", "默认课程1"));
+                options.add(new OptionItem(2, "2", "默认课程2"));
             }
 
-            courseFilterComboBox.setItems(FXCollections.observableArrayList(options));
-            courseComboBox.setItems(FXCollections.observableArrayList(options.subList(1, options.size())));
+            // 更新UI控件
+            Platform.runLater(() -> {
+                courseFilterComboBox.setItems(FXCollections.observableArrayList(options));
+                // 排除"全部课程"选项
+                courseComboBox.setItems(FXCollections.observableArrayList(
+                        options.subList(1, options.size())));
+            });
+        } else {
+            String errorMsg = res != null ? res.getMsg() : "无法连接到服务器";
+            System.out.println("获取课程列表失败: " + errorMsg);
+            MessageDialog.showDialog("获取课程列表失败: " + errorMsg);
+
+            // 设置空列表避免NPE
+            Platform.runLater(() -> {
+                courseFilterComboBox.setItems(FXCollections.observableArrayList(
+                        new OptionItem(0, "", "全部课程")));
+                courseComboBox.setItems(FXCollections.observableArrayList());
+            });
         }
     }
 
     @FXML
     protected void onQueryButtonClick() {
-        String numTitle = numTitleTextField.getText();
-        String courseId = "";
-        if (courseFilterComboBox.getSelectionModel().getSelectedItem() != null) {
-            courseId = courseFilterComboBox.getSelectionModel().getSelectedItem().getValue();
-        }
+        try {
+            String numTitle = numTitleTextField.getText();
+            Integer courseId = null;
 
-        DataRequest req = new DataRequest();
-        req.add("numTitle", numTitle);
-        if (!courseId.isEmpty() && !courseId.equals("")) {
-            req.add("courseId", Integer.parseInt(courseId));
-        }
-
-        DataResponse res = HttpRequestUtil.request("/api/assignment/getAssignmentList", req);
-        if (res != null && res.getCode() == 0) {
-            observableList.clear();
-            List<Map<String, Object>> dataList = (List<Map<String, Object>>) res.getData();
-            if (dataList != null && !dataList.isEmpty()) {
-                observableList.addAll(dataList);
+            // 安全获取课程ID
+            if (courseFilterComboBox.getSelectionModel().getSelectedItem() != null) {
+                try {
+                    courseId = Integer.parseInt(courseFilterComboBox.getSelectionModel().getSelectedItem().getValue());
+                } catch (NumberFormatException e) {
+                    System.err.println("课程ID格式错误");
+                }
             }
-        } else {
-            MessageDialog.showDialog("查询失败: " + (res != null ? res.getMsg() : "网络错误"));
+
+            DataRequest req = new DataRequest();
+            req.add("numTitle", numTitle != null ? numTitle : "");
+
+            // 只有当courseId有效时才添加
+            if (courseId != null && courseId > 0) {
+                req.add("courseId", courseId);
+            }
+
+            // 打印调试信息
+            System.out.println("发送请求参数: " + req.getData());
+
+            DataResponse res = HttpRequestUtil.request("/api/homework/getHomeworkList", req);
+
+            // 打印响应信息
+            System.out.println("收到响应: " + (res != null ? res.toString() : "null"));
+
+            if (res != null && res.getCode() == 0) {
+                observableList.clear();
+                List<Map<String, Object>> dataList = (List<Map<String, Object>>) res.getData();
+
+                if (dataList != null) {
+                    System.out.println("获取到作业数量: " + dataList.size());
+                    observableList.addAll(FXCollections.observableArrayList(dataList));
+                } else {
+                    System.out.println("警告: 作业列表为空");
+                    MessageDialog.showDialog("没有找到符合条件的作业");
+                }
+            } else {
+                String errorMsg = res != null ? res.getMsg() : "无法连接到服务器";
+                System.err.println("查询失败: " + errorMsg);
+                MessageDialog.showDialog("查询失败: " + errorMsg);
+            }
+        } catch (Exception e) {
+            System.err.println("查询异常: " + e.getMessage());
+            e.printStackTrace();
+            MessageDialog.showDialog("查询时发生异常: " + e.getMessage());
         }
     }
 
@@ -215,7 +273,7 @@ public class AssignmentController extends ToolController {
         req.add("assignmentId", assignmentId);
         req.add("form", form);
 
-        DataResponse res = HttpRequestUtil.request("/api/assignment/assignmentEditSave", req);
+        DataResponse res = HttpRequestUtil.request("/api/homework/homeworkSave", req);
         if (res != null && res.getCode() == 0) {
             MessageDialog.showDialog("保存成功！");
             onQueryButtonClick();
@@ -242,7 +300,7 @@ public class AssignmentController extends ToolController {
         DataRequest req = new DataRequest();
         req.add("assignmentId", assignmentId);
 
-        DataResponse res = HttpRequestUtil.request("/api/assignment/assignmentDelete", req);
+        DataResponse res = HttpRequestUtil.request("/api/homework/homeworkDelete", req);
         if (res != null && res.getCode() == 0) {
             MessageDialog.showDialog("删除成功！");
             assignmentId = null;
@@ -260,7 +318,7 @@ public class AssignmentController extends ToolController {
         DataRequest req = new DataRequest();
         req.add("numTitle", numTitle);
 
-        byte[] bytes = HttpRequestUtil.requestByteData("/api/assignment/getAssignmentListExcel", req);
+        byte[] bytes = HttpRequestUtil.requestByteData("/api/homework/getAssignmentListExcel", req);
         if (bytes != null) {
             try {
                 FileChooser fileChooser = new FileChooser();
@@ -304,7 +362,7 @@ public class AssignmentController extends ToolController {
         DataRequest req = new DataRequest();
         req.add("assignmentId", assignmentId);
 
-        DataResponse res = HttpRequestUtil.request("/api/assignment/getAssignmentInfo", req);
+        DataResponse res = HttpRequestUtil.request("/api/homework/getHomeworkInfo", req);
         if (res != null && res.getCode() == 0) {
             Map<String, Object> data = (Map<String, Object>) res.getData();
             if (data != null) {
