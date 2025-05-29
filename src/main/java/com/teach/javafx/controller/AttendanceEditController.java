@@ -59,7 +59,7 @@ public class AttendanceEditController {
         // 获取选中的状态
         op = statusComboBox.getSelectionModel().getSelectedItem();
         if(op != null) {
-            data.put("statusId", Integer.parseInt(op.getValue()));
+            data.put("status", op.getValue().toString()); // 直接使用字符串值
         }
 
         data.put("attendanceId", attendanceId);
