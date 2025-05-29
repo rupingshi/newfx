@@ -70,7 +70,7 @@ public class AttendanceTableController {
         if (studentList == null) {
             System.out.println("开始请求学生列表...");
             DataRequest req = new DataRequest();
-            studentList = HttpRequestUtil.requestOptionItemList("/api/students/getStudentItemOptionList", req);
+            studentList = HttpRequestUtil.requestOptionItemList("/api/student/getStudentList", req);
             System.out.println("请求结果：" + (studentList != null ? "成功，获取到 " + studentList.size() + " 条记录" : "失败"));
             if(studentList == null) {
                 studentList = new ArrayList<>();
@@ -108,11 +108,18 @@ public class AttendanceTableController {
     private void initComboBox() {
         // 初始化学生下拉框
         studentList = getStudentList();
+        studentComboBox.getItems().clear(); // 清空现有项
+        OptionItem defaultItem = new OptionItem(null,"0","请选择");
+        studentComboBox.getItems().add(defaultItem);
         studentComboBox.getItems().addAll(studentList);
-        
+        studentComboBox.getSelectionModel().select(0); // 默认选择"请选择"
+
         // 初始化状态下拉框
         statusList = getStatusList();
+        statusComboBox.getItems().clear(); // 清空现有项
+        statusComboBox.getItems().add(defaultItem);
         statusComboBox.getItems().addAll(statusList);
+        statusComboBox.getSelectionModel().select(0); // 默认选择"请选择"
     }
     
     // 查询按钮点击事件
@@ -199,10 +206,13 @@ public class AttendanceTableController {
         // 初始化 observableList，确保不为 null
         observableList = FXCollections.observableArrayList();
 
+        // 初始化下拉框
+        initComboBox();
+
         // 从后台获取学生列表
         System.out.println("开始请求学生列表...");
         DataRequest req = new DataRequest();
-        studentList = HttpRequestUtil.requestOptionItemList("/api/students/getStudentItemOptionList", req);
+        studentList = HttpRequestUtil.requestOptionItemList("/api/student/getStudentInfo", req);
         System.out.println("请求结果：" + (studentList != null ? "成功，获取到 " + studentList.size() + " 条记录" : "失败"));
     
         // 如果获取失败，初始化为空列表而不是 null

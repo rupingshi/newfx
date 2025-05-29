@@ -7,6 +7,7 @@ import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -82,12 +83,25 @@ public class AttendanceEditController {
             System.out.println("错误：attendanceTableController未设置");
             return;
         }
-        // 从控制器类直接获取列表（通过类名访问静态方法）
+        // 从控制器类直接获取列表
         studentList = AttendanceTableController.getStudentList();
         statusList = AttendanceTableController.getStatusList();
 
+        // 检查列表是否为空
+        if(studentList == null || studentList.isEmpty()) {
+            System.out.println("警告：学生列表为空");
+            studentList = new ArrayList<>(); // 确保不为null
+        }
+        if(statusList == null || statusList.isEmpty()) {
+            System.out.println("警告：状态列表为空");
+            statusList = new ArrayList<>(); // 确保不为null
+        }
+
         // 添加列表项
+        studentComboBox.getItems().clear();
         studentComboBox.getItems().addAll(studentList);
+
+        statusComboBox.getItems().clear();
         statusComboBox.getItems().addAll(statusList);
     }
 
